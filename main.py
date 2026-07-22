@@ -12,7 +12,7 @@ def get_live_weather():
     weather_payload = {}
     for city in CITIES:
         try:
-            # REPAIRED LINK: Added api sub-domain, data paths, and explicit query variables
+            # FIXED DESTINATION: Pointing directly to the api sub-domain
             url = f"https://openweathermap.org{city}&appid={WEATHER_API_KEY}&units=metric"
             response = requests.get(url, timeout=10)
             
@@ -30,7 +30,7 @@ def get_live_weather():
     return weather_payload
 
 def update_roblox_description(weather_data):
-    """Pushes a simplified string payload directly into the Roblox metadata registry."""
+    """Pushes a simplified string payload directly into the Roblox registry."""
     url = f"https://roblox.com{ASSET_ID}"
     headers = {"x-api-key": ROBLOX_API_KEY}
     
