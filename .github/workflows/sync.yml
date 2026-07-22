@@ -1,18 +1,29 @@
 name: Update Roblox Weather Asset
+
 on:
   schedule:
     - cron: '*/15 * * * *'
   workflow_dispatch:
+
 jobs:
   run-sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: {python-version: '3.10'}
-      - run: pip install requests
-      - run: python main.py
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: Set Up Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install requests
+
+      - name: Run Weather Sync Script
         env:
           ROBLOX_API_KEY: ${{ secrets.ROBLOX_API_KEY }}
           WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
           ASSET_ID: ${{ secrets.ASSET_ID }}
+        run: python main.py
+
