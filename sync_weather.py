@@ -13,8 +13,16 @@ def get_live_weather():
     for city in CITIES:
         try:
             # FIXED: Built using explicit string concatenation to match your successful browser test
-            url = "https://api.openweathermap.org/data/2.5/weather?q=" + str(city) + "&appid=" + str(WEATHER_API_KEY)
-            response = requests.get(url, timeout=10)
+            base_url = "https://api.openweathermap.org/data/2.5/weather"
+
+            query_parameters = {
+                "q": city,
+                "appid": WEATHER_API_KEY,
+                "units": "metric"
+            }
+
+response = requests.get(base_url, params=query_parameters, timeout=10)
+
             
             if response.status_code == 200:
                 data = response.json()
