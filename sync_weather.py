@@ -11,7 +11,7 @@ def get_live_weather():
     weather_payload = {}
     for city in CITIES:
         try:
-            url = f"https://openweathermap.org{city}&appid={WEATHER_API_KEY}&units=metric"
+            url = f"https://openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric"
             response = requests.get(url, timeout=10)
             
             if response.status_code == 200:
