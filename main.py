@@ -47,6 +47,14 @@ def update_roblox_description(weather_data):
         print(f"Roblox API rejection: {response.status_code} - {response.text}")
 
 if __name__ == "__main__":
+    # CRITICAL TRACKER: Force the console to output text instantly when launched
+    print("--- PYTHON SCRIPT LAUNCHED SUCCESSFULLY ---")
+    
     data = get_live_weather()
+    print(f"Weather Data Collected: {json.dumps(data)}")
+    
     if data:
         update_roblox_description(data)
+    else:
+        print("Error: Weather payload was empty.")
+
