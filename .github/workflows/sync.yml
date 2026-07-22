@@ -25,5 +25,6 @@ jobs:
           ROBLOX_API_KEY: ${{ secrets.ROBLOX_API_KEY }}
           WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
           ASSET_ID: ${{ secrets.ASSET_ID }}
-        run: python main.py
+        run: python sync_weather.py
+
 
