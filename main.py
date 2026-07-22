@@ -1,17 +1,12 @@
-import os
-import time
-import json
-import requests
+import os, time, json, requests
 
-# Retrieve variables securely from GitHub Settings
+# Setup via GitHub Secrets
 ROBLOX_API_KEY = os.environ.get("ROBLOX_API_KEY")
 WEATHER_API_KEY = os.environ.get("WEATHER_API_KEY")
 ASSET_ID = os.environ.get("ASSET_ID")
-
 CITIES = ["London", "New York", "Tokyo", "Paris", "Sydney"]
 
 def get_live_weather():
-    """Gathers international temperature statistics."""
     weather_payload = {}
     for city in CITIES:
         try:
@@ -25,47 +20,31 @@ def get_live_weather():
                     "condition": data["weather"]["main"],
                     "updated": int(time.time())
                 }
-            else:
-                print(f"Weather API error for {city}: {response.status_code}")
-        except Exception as error:
-            print(f"Failed pulling weather for {city}: {error}")
+        except Exception as error: print(f"Error: {error}")
     return weather_payload
 
 def generate_roblox_xml(weather_data):
-    """Encapsulates structural code into a single-line data package."""
+    # Create valid .rbxm XML structure with escaped data
     json_string = json.dumps(weather_data, separators=(',', ':'))
     escaped_json = json_string.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-    
-    return f"""<roblox xmlns:xmime="http://w3.org" xmlns:xsi="http://w3.org" xsi:noNamespaceSchemaLocation="http://roblox.com" version="4">
-	<Item class="StringValue" Referent="RBX0">
-		<Properties>
-			<string name="Name">WeatherData</string>
-			<string name="Value">{escaped_json}</string>
-		</Properties>
-	</Item>
-</roblox>"""
+    return (
+        '<?xml version="1.0" encoding="utf-8"?>\n'
+        '<roblox version="4"><Item class="StringValue" Referent="RBX0">\n'
+        f'<Properties><string name="Name">WeatherData</string>\n'
+        f'<string name="Value">{escaped_json}</string></Properties>\n'
+        '</Item></roblox>'
+    )
 
 def push_to_roblox_cloud(xml_content):
-    """Transmits file stream payloads into Roblox Asset servers."""
-    url = f"https://roblox.com{ASSET_ID}"
+    url = f"https://roblox.com{ASSET_ID}?publish=true"
     headers = {"x-api-key": ROBLOX_API_KEY}
+    # multipart/form-data payload required by Roblox
     form_data = {
         "request": (None, '{}', 'application/json'),
         "fileContent": ('model.rbxm', xml_content, 'application/octet-stream')
     }
-    
-    try:
-        response = requests.patch(url, headers=headers, files=form_data, timeout=15)
-        if response.status_code == 200:
-            print("Successfully uploaded updated data to Roblox!")
-        else:
-            print(f"Roblox API rejection: {response.status_code} - {response.text}")
-    except Exception as error:
-        print(f"Failed contacting Roblox servers: {error}")
+    requests.patch(url, headers=headers, files=form_data, timeout=15)
 
 if __name__ == "__main__":
-    # Explicit function execution link
-    current_weather = get_live_weather()
-    if current_weather:
-        roblox_file = generate_roblox_xml(current_weather)
-        push_to_roblox_cloud(roblox_file)
+    data = get_live_weather()
+    if data: push_to_roblox_cloud(generate_roblox_xml(data))
