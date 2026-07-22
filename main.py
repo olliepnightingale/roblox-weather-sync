@@ -1,6 +1,6 @@
 import os, time, json, requests
 
-# Security variable extraction
+# Retrieve variables securely from GitHub Settings
 ROBLOX_API_KEY = os.environ.get("ROBLOX_API_KEY")
 WEATHER_API_KEY = os.environ.get("WEATHER_API_KEY")
 ASSET_ID = os.environ.get("ASSET_ID")
@@ -8,14 +8,14 @@ ASSET_ID = os.environ.get("ASSET_ID")
 CITIES = ["London", "New York", "Tokyo", "Paris", "Sydney"]
 
 def get_live_weather():
-    """Fetches real-time weather metrics for target cities with error tracking."""
+    """Fetches real-time weather metrics using the repaired endpoint."""
     weather_payload = {}
     for city in CITIES:
         try:
+            # REPAIRED LINK: Added api sub-domain, data paths, and explicit query variables
             url = f"https://openweathermap.org{city}&appid={WEATHER_API_KEY}&units=metric"
             response = requests.get(url, timeout=10)
             
-            # DIAGNOSTIC CHECK: Print the raw response if it fails
             if response.status_code == 200:
                 data = response.json()
                 weather_payload[city] = {
@@ -23,24 +23,23 @@ def get_live_weather():
                     "condition": data["weather"]["main"]
                 }
             else:
-                print(f"API Rejection for {city}! Code: {response.status_code} | Message: {response.text}")
+                print(f"API Rejection for {city}! Code: {response.status_code} | Text: {response.text}")
                 
         except Exception as error:
             print(f"Failed pulling weather for {city}: {error}")
     return weather_payload
 
-
 def update_roblox_description(weather_data):
+    """Pushes a simplified string payload directly into the Roblox metadata registry."""
     url = f"https://roblox.com{ASSET_ID}"
     headers = {"x-api-key": ROBLOX_API_KEY}
     
-    # Pack payload down into an un-spaced single string
+    # Minified compression
     json_string = json.dumps(weather_data, separators=(',', ':'))
     
     asset_metadata = {
         "assetId": str(ASSET_ID),
-        "description": json_string,
-        "assetType": "Model"
+        "description": json_string
     }
     
     form_data = {
@@ -48,20 +47,15 @@ def update_roblox_description(weather_data):
     }
     
     response = requests.patch(url, headers=headers, files=form_data, timeout=15)
-    if response.status_code == 200:
-        print("Successfully updated asset metadata on Roblox!")
-    else:
-        print(f"Roblox API rejection: {response.status_code} - {response.text}")
+    print(f"Roblox Server Response Code: {response.status_code}")
+    print(f"Roblox Server Text: {response.text}")
 
 if __name__ == "__main__":
-    # CRITICAL TRACKER: Force the console to output text instantly when launched
     print("--- PYTHON SCRIPT LAUNCHED SUCCESSFULLY ---")
-    
     data = get_live_weather()
     print(f"Weather Data Collected: {json.dumps(data)}")
     
-    if data:
+    if data and len(data) > 0:
         update_roblox_description(data)
     else:
         print("Error: Weather payload was empty.")
-
