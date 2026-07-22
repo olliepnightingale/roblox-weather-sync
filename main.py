@@ -1,6 +1,5 @@
 import os, time, json, requests
 
-# Setup via GitHub Secrets
 ROBLOX_API_KEY = os.environ.get("ROBLOX_API_KEY")
 WEATHER_API_KEY = os.environ.get("WEATHER_API_KEY")
 ASSET_ID = os.environ.get("ASSET_ID")
@@ -16,35 +15,28 @@ def get_live_weather():
                 data = response.json()
                 weather_payload[city] = {
                     "temp": round(data["main"]["temp"], 1),
-                    "humidity": data["main"]["humidity"],
-                    "condition": data["weather"]["main"],
-                    "updated": int(time.time())
+                    "condition": data["weather"]["main"]
                 }
-        except Exception as error: print(f"Error: {error}")
+        except Exception: pass
     return weather_payload
 
-def generate_roblox_xml(weather_data):
-    # Create valid .rbxm XML structure with escaped data
-    json_string = json.dumps(weather_data, separators=(',', ':'))
-    escaped_json = json_string.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-    return (
-        '<?xml version="1.0" encoding="utf-8"?>\n'
-        '<roblox version="4"><Item class="StringValue" Referent="RBX0">\n'
-        f'<Properties><string name="Name">WeatherData</string>\n'
-        f'<string name="Value">{escaped_json}</string></Properties>\n'
-        '</Item></roblox>'
-    )
-
-def push_to_roblox_cloud(xml_content):
-    url = f"https://roblox.com{ASSET_ID}?publish=true"
+def update_roblox_description(weather_data):
+    url = f"https://roblox.com{ASSET_ID}"
     headers = {"x-api-key": ROBLOX_API_KEY}
-    # multipart/form-data payload required by Roblox
+    
+    # Compress JSON into a single line to fit in the description
+    json_string = json.dumps(weather_data, separators=(',', ':'))
+    
+    # We update the metadata config block directly instead of uploading a file content stream
     form_data = {
-        "request": (None, '{}', 'application/json'),
-        "fileContent": ('model.rbxm', xml_content, 'application/octet-stream')
+        "request": (None, json.dumps({
+            "assetId": ASSET_ID,
+            "description": json_string # Your live weather data lives here now!
+        }), 'application/json')
     }
+    
     requests.patch(url, headers=headers, files=form_data, timeout=15)
 
 if __name__ == "__main__":
     data = get_live_weather()
-    if data: push_to_roblox_cloud(generate_roblox_xml(data))
+    if data: update_roblox_description(data)
