@@ -3,7 +3,7 @@ import time
 import json
 import requests
 
-# Pull secure configuration variables from GitHub Secrets
+# Retrieve variables securely from GitHub Settings
 ROBLOX_API_KEY = os.environ.get("ROBLOX_API_KEY")
 WEATHER_API_KEY = os.environ.get("WEATHER_API_KEY")
 ASSET_ID = os.environ.get("ASSET_ID")
@@ -11,7 +11,7 @@ ASSET_ID = os.environ.get("ASSET_ID")
 CITIES = ["London", "New York", "Tokyo", "Paris", "Sydney"]
 
 def get_live_weather():
-    """Fetches real-time weather metrics for target cities."""
+    """Gathers international temperature statistics."""
     weather_payload = {}
     for city in CITIES:
         try:
@@ -32,7 +32,7 @@ def get_live_weather():
     return weather_payload
 
 def generate_roblox_xml(weather_data):
-    """Wraps minified weather JSON safely inside a single-line Roblox .rbxm string."""
+    """Encapsulates structural code into a single-line data package."""
     json_string = json.dumps(weather_data, separators=(',', ':'))
     escaped_json = json_string.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
     
@@ -46,7 +46,7 @@ def generate_roblox_xml(weather_data):
 </roblox>"""
 
 def push_to_roblox_cloud(xml_content):
-    """Pushes the new single-line rbxm structure directly to the Roblox Asset ID."""
+    """Transmits file stream payloads into Roblox Asset servers."""
     url = f"https://roblox.com{ASSET_ID}"
     headers = {"x-api-key": ROBLOX_API_KEY}
     form_data = {
@@ -56,7 +56,7 @@ def push_to_roblox_cloud(xml_content):
     
     try:
         response = requests.patch(url, headers=headers, files=form_data, timeout=15)
-        if response.status_code in:
+        if response.status_code == 200:
             print("Successfully uploaded updated data to Roblox!")
         else:
             print(f"Roblox API rejection: {response.status_code} - {response.text}")
@@ -64,7 +64,7 @@ def push_to_roblox_cloud(xml_content):
         print(f"Failed contacting Roblox servers: {error}")
 
 if __name__ == "__main__":
-    # Safely executes data collection using matching function names
+    # Explicit function execution link
     current_weather = get_live_weather()
     if current_weather:
         roblox_file = generate_roblox_xml(current_weather)
