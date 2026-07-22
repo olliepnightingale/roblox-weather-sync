@@ -8,20 +8,27 @@ ASSET_ID = os.environ.get("ASSET_ID")
 CITIES = ["London", "New York", "Tokyo", "Paris", "Sydney"]
 
 def get_live_weather():
+    """Fetches real-time weather metrics for target cities with error tracking."""
     weather_payload = {}
     for city in CITIES:
         try:
             url = f"https://openweathermap.org{city}&appid={WEATHER_API_KEY}&units=metric"
             response = requests.get(url, timeout=10)
+            
+            # DIAGNOSTIC CHECK: Print the raw response if it fails
             if response.status_code == 200:
                 data = response.json()
                 weather_payload[city] = {
                     "temp": round(data["main"]["temp"], 1),
                     "condition": data["weather"]["main"]
                 }
-        except Exception:
-            pass
+            else:
+                print(f"API Rejection for {city}! Code: {response.status_code} | Message: {response.text}")
+                
+        except Exception as error:
+            print(f"Failed pulling weather for {city}: {error}")
     return weather_payload
+
 
 def update_roblox_description(weather_data):
     url = f"https://roblox.com{ASSET_ID}"
