@@ -1,0 +1,31 @@
+name: Update Roblox Weather Asset
+
+on:
+  schedule:
+    # Runs automatically every 15 minutes, 24/7 for free
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    # Adds a button so you can trigger it manually to test
+
+jobs:
+  run-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: Set Up Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Python Dependencies
+        run: |
+          pip install requests
+
+      - name: Run Weather Sync Script
+        env:
+          ROBLOX_API_KEY: ${{ secrets.ROBLOX_API_KEY }}
+          WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
+          ASSET_ID: ${{ secrets.ASSET_ID }}
+        run: python main.py
