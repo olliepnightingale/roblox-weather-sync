@@ -20,11 +20,10 @@ jobs:
       - name: Install Dependencies
         run: pip install requests
 
-      - name: Run Weather Sync Script
+      - name: Run Repaired Script
         env:
           ROBLOX_API_KEY: ${{ secrets.ROBLOX_API_KEY }}
           WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
           ASSET_ID: ${{ secrets.ASSET_ID }}
+        # CRITICAL FIX: Explicitly forces the runner to load the concatenating python file
         run: python sync_weather.py
-
-
