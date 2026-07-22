@@ -8,21 +8,23 @@ ASSET_ID = os.environ.get("ASSET_ID")
 CITIES = ["London", "New York", "Tokyo", "Paris", "Sydney"]
 
 def get_live_weather():
-    """Fetches weather metrics using the raw working browser URL format."""
+    """Fetches real-time weather metrics using a safe params dictionary configuration."""
     weather_payload = {}
+    
+    # Clean static URL path prevents system text-stripping bugs
+    base_url = "https://openweathermap.org"
+    
     for city in CITIES:
         try:
-            # FIXED: Built using explicit string concatenation to match your successful browser test
-            base_url = "https://api.openweathermap.org/data/2.5/weather"
-
+            # DYNAMIC ARGUMENTS: Requests handles formatting automatically
             query_parameters = {
                 "q": city,
                 "appid": WEATHER_API_KEY,
                 "units": "metric"
             }
-
-response = requests.get(base_url, params=query_parameters, timeout=10)
-
+            
+            # Execute standard GET call using parameter array maps
+            response = requests.get(base_url, params=query_parameters, timeout=10)
             
             if response.status_code == 200:
                 data = response.json()
@@ -35,10 +37,11 @@ response = requests.get(base_url, params=query_parameters, timeout=10)
                 
         except Exception as error:
             print("Execution fault for " + str(city) + ": " + str(error))
+            
     return weather_payload
 
 def update_roblox_description(weather_data):
-    """Pushes the minified weather string payload into the Roblox description metadata."""
+    """Pushes a simplified string payload directly into the Roblox metadata registry."""
     url = "https://roblox.com" + str(ASSET_ID)
     headers = {"x-api-key": ROBLOX_API_KEY}
     
