@@ -10,23 +10,23 @@ ASSET_ID = os.environ.get("ASSET_ID")
 
 CITIES = ["London", "New York", "Tokyo", "Paris", "Sydney"]
 
-def get_live_weather():
-    weather_payload = {}
-    for city in CITIES:
-        try:
-            url = f"https://openweathermap.org{city}&appid={WEATHER_API_KEY}&units=metric"
-            response = requests.get(url, timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                weather_payload[city] = {
-                    "temp": round(data["main"]["temp"], 1),
-                    "humidity": data["main"]["humidity"],
-                    "condition": data["weather"]["main"],
-                    "updated": int(time.time())
-                }
-        except Exception as error:
-            print(f"Failed pulling weather for {city}: {error}")
-    return weather_payload
+def generate_roblox_xml(weather_data):
+    """Wraps compressed weather JSON inside an official Roblox .rbxm structure."""
+    # CRITICAL FIX: Remove indent and separators to compress the entire JSON into a single line
+    json_string = json.dumps(weather_data, separators=(',', ':'))
+    
+    # Escape crucial XML characters so the structural tagging doesn't break
+    escaped_json = json_string.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    
+    return f"""<roblox xmlns:xmime="http://w3.org" xmlns:xsi="http://w3.org" xsi:noNamespaceSchemaLocation="http://roblox.com" version="4">
+	<Item class="StringValue" Referent="RBX0">
+		<Properties>
+			<string name="Name">WeatherData</string>
+			<string name="Value">{escaped_json}</string>
+		</Properties>
+	</Item>
+</roblox>"""
+
 
 def generate_roblox_xml(weather_data):
     json_string = json.dumps(weather_data, indent=2)
