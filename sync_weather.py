@@ -26,6 +26,7 @@ def get_live_weather():
             # Execute standard GET call using parameter array maps
             response = requests.get(base_url, params=query_parameters, timeout=10)
             
+            # IMPROVED LOGGING: Catch and display the real response code
             if response.status_code == 200:
                 data = response.json()
                 weather_payload[city] = {
@@ -33,7 +34,9 @@ def get_live_weather():
                     "condition": data["weather"]["main"]
                 }
             else:
-                print("API Rejection for " + str(city) + "! Code: " + str(response.status_code))
+                print(f"API Connection Rejected for {city}! HTTP Code: {response.status_code}")
+                print(f"Server Response Content: {response.text[:150]}") # Only prints the first 150 letters to protect space
+
                 
         except Exception as error:
             print("Execution fault for " + str(city) + ": " + str(error))
