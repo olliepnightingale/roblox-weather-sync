@@ -21,6 +21,7 @@ def get_live_weather():
             }
             
             response = requests.get(base_url, params=query_parameters, timeout=10)
+            print(response)
             
             # CORE SEPARATION: Check the status code directly before parsing JSON text
             if response.status_code == 200:
